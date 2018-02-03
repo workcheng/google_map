@@ -1,30 +1,30 @@
 var filterText = ko.observable("");
-var map,infoWindow;
+var map, infoWindow;
 var url = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
 url += '?' + $.param({
         'api-key': "1c8c883401bb42faafd24b774e918db8"
     })
 
 var placesData = [{
-        position:{lat:21.023418,lng:105.8516438},
-        title:"Vietnamese Women's Museum"
+    position: {lat: 21.023418, lng: 105.8516438},
+    title: "Vietnamese Women's Museum"
+},
+    {
+        position: {lat: 21.030708, lng: 105.852405},
+        title: "Hoan Kiem Lake"
     },
     {
-        position:{lat:21.030708,lng:105.852405},
-        title:"Hoan Kiem Lake"
+        position: {lat: 21.035302, lng: 105.849257},
+        title: "Old Quarter"
     },
     {
-        position:{lat:21.035302,lng:105.849257},
-        title:"Old Quarter"
-    },
-    {
-        position:{lat:21.036713,lng:105.834731},
-        title:"Ho Chi Minh Mausoleum"
+        position: {lat: 21.036713, lng: 105.834731},
+        title: "Ho Chi Minh Mausoleum"
     }
 ]
 
 
-var Place = function(data){
+var Place = function (data) {
     var self = this;
     this.position = data.position;
     this.title = data.title;
@@ -42,18 +42,18 @@ var Place = function(data){
 
     });
 
-    google.maps.event.addListener(self.marker,"click",function () {
+    google.maps.event.addListener(self.marker, "click", function () {
         //open infoWindow
         infoWindow.setContent(self.title)
-        infoWindow.open(map,self.marker);
+        infoWindow.open(map, self.marker);
 
-        if(self.marker.getAnimation() != null){
+        if (self.marker.getAnimation() != null) {
             self.marker.setAnimation(null);
-        }else {
+        } else {
             self.marker.setAnimation(google.maps.Animation.BOUNCE);
             setTimeout(function () {
                 self.marker.setAnimation(null);
-            },2000);
+            }, 2000);
         }
 
         //ajax load data
@@ -61,18 +61,19 @@ var Place = function(data){
             url: url + "&q＝" + self.title,
             dataType: "json",
             // method: 'GET',
-            timeout:5000
+            timeout: 5000
         }).done(function (data) {
             console.info(data)
             infoWindow.setContent(data.response.docs[0].snippet);
-            infoWindow.open(map,self.marker)
-        }).fail(function(err) {
+            infoWindow.open(map, self.marker)
+        }).fail(function (err) {
             alert("加载api失败！");
-        });;
+        });
+        ;
     })
 }
 
-var viewModel = function() {
+var viewModel = function () {
     var self = this;
     this.placeList = [];
 
@@ -81,16 +82,16 @@ var viewModel = function() {
     });
 
     this.placeList.forEach(function (place) {
-        place.marker.setMap(map,place.position)
+        place.marker.setMap(map, place.position)
     });
 
     this.filteredList = ko.computed(function () {
         var result = [];
         self.placeList.forEach(function (place) {
-            if (place.visible()){
+            if (place.visible()) {
                 result.push(place)
-                place.marker.setMap(map,place.position)
-            }else {
+                place.marker.setMap(map, place.position)
+            } else {
                 place.marker.setMap(null);
             }
         });
@@ -98,12 +99,12 @@ var viewModel = function() {
     });
 
     this.listClick = function (place) {
-        google.maps.event.trigger(place.marker,"click");
+        google.maps.event.trigger(place.marker, "click");
     }
 }
 
 function initMap() {
-    map = new google.maps.Map(document.getElementById("map"),{center:placesData[1].position,zoom:13})
+    map = new google.maps.Map(document.getElementById("map"), {center: placesData[1].position, zoom: 13})
     infoWindow = new google.maps.InfoWindow();
     ko.applyBindings(new viewModel());
 }
